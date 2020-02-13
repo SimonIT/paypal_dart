@@ -2,6 +2,7 @@
 library paypal_rest_api;
 
 import "package:http/src/base_client.dart" as http;
+
 import "src/apis/payments.dart";
 
 /// A wrapper class over the entire PayPal REST API.

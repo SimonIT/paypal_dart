@@ -4,28 +4,30 @@ library paypal_rest_api.apis.payments;
 
 import "dart:async";
 import "dart:convert";
+
 import "package:http/src/base_client.dart" as http;
 
 /// Includes an intent, payer, and transactions.
 class Payment {
   String id, intent, state, experienceProfileId, noteToPayer, failureReason;
   DateTime createTime, updateTime;
-  List transactions = [],
-      links = [];
+  List transactions = [], links = [];
   Map redirectUrls = {};
   var payer;
 
-  Payment({this.id,
-  this.intent,
-  this.state,
-  this.experienceProfileId,
-  this.noteToPayer,
-  this.failureReason,
-  this.createTime,
-  this.updateTime,
-  this.redirectUrls,
-  this.transactions,
-  payer}) {
+  Payment({
+    this.id,
+    this.intent,
+    this.state,
+    this.experienceProfileId,
+    this.noteToPayer,
+    this.failureReason,
+    this.createTime,
+    this.updateTime,
+    this.redirectUrls,
+    this.transactions,
+    payer,
+  }) {
     this.createTime = createTime ?? new DateTime.now();
     this.links = links ?? [];
     this.transactions = transactions ?? [];
@@ -34,23 +36,21 @@ class Payment {
   }
 
   Payment.fromJson(String json) {
-    _initializeFromMap(JSON.decode(json));
+    _initializeFromMap(jsonDecode(json));
   }
 
-  Payment.fromMap(Map data) {
+  Payment.fromMap(Map<String, dynamic> data) {
     _initializeFromMap(data);
   }
 
-  _initializeFromMap(Map data) {
+  _initializeFromMap(Map<String, dynamic> data) {
     id = data["id"];
     intent = data["intent"];
     state = data["state"];
     experienceProfileId = data["experience_profile_id"];
     noteToPayer = data["note_to_payer"];
     failureReason = data["failure_reason"];
-    createTime = data["create_time"] != null
-        ? DateTime.parse(data["create_time"])
-        : new DateTime.now();
+    createTime = DateTime.tryParse(data["create_time"]) ?? new DateTime.now();
     if (updateTime != null) {
       updateTime = DateTime.parse(data["update_time"]);
     }
@@ -70,8 +70,8 @@ class Payment {
     redirectUrls = data["redirect_urls"] ?? {};
   }
 
-  Map toJson() {
-    Map result = {
+  Map<String, dynamic> toJson() {
+    Map<String, dynamic> result = {
       "id": id,
       "create_time": createTime?.toIso8601String(),
       "update_time": updateTime?.toIso8601String(),
@@ -85,13 +85,11 @@ class Payment {
     };
 
     if (transactions != null) {
-      result["transactions"] =
-          transactions.map((x) => x is Transaction ? x.toJson() : x).toList();
+      result["transactions"] = transactions.map((x) => x is Transaction ? x.toJson() : x).toList();
     }
 
     if (links != null) {
-      result["links"] =
-          links.map((x) => x is Link ? x.toJson() : x).toList();
+      result["links"] = links.map((x) => x is Link ? x.toJson() : x).toList();
     }
 
     return result;
@@ -99,7 +97,7 @@ class Payment {
 }
 
 class Link {
-  Map toJson() {
+  Map<String, dynamic> toJson() {
     return {};
   }
 }
@@ -112,16 +110,16 @@ class Payer {
     this.fundingInstruments = fundingInstruments ?? [];
   }
 
-  Map toJson() {
+  Map<String, dynamic> toJson() {
     return {
       "payment_method": paymentMethod,
-      "funding_instruments": fundingInstruments
+      "funding_instruments": fundingInstruments,
     };
   }
 }
 
 class Transaction {
-  Map toJson() {
+  Map<String, dynamic> toJson() {
     return {};
   }
 }
@@ -135,12 +133,14 @@ class PaymentsApi {
 
   /// Creates a [Payment].
   Future<Payment> createPayment(payment) async {
-    var response = await _client.post("$_endPoint/payment",
-        body: JSON.encode(payment is Payment ? payment.toJson() : payment),
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json"
-        });
+    var response = await _client.post(
+      "$_endPoint/payment",
+      body: jsonEncode(payment is Payment ? payment.toJson() : payment),
+      headers: <String, String>{
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      },
+    );
     return new Payment.fromJson(response.body);
   }
 }

@@ -1,7 +1,7 @@
 /// Contains code for error handling.
 library paypal_dart.paypal_exception;
 
-import "dart:convert";
+import 'dart:convert';
 
 /// Represents an error while using the PayPal API.
 class PayPalException implements Exception {
@@ -9,22 +9,23 @@ class PayPalException implements Exception {
   String informationLink, message, name;
   int statusCode;
 
-  PayPalException(
-      {List this.details,
-      String this.informationLink,
-      String this.message,
-      String this.name,
-      int this.statusCode: 500});
+  PayPalException({
+    List this.details,
+    String this.informationLink,
+    String this.message,
+    String this.name,
+    int this.statusCode: 500,
+  });
 
   PayPalException.fromJson(String json, {int statusCode: 500}) {
-    _initializeFromMap(JSON.decode(json), statusCode: statusCode);
+    _initializeFromMap(jsonDecode(json), statusCode: statusCode);
   }
 
-  PayPalException.fromMap(Map data, {int statusCode: 500}) {
+  PayPalException.fromMap(Map<String, dynamic> data, {int statusCode: 500}) {
     _initializeFromMap(data, statusCode: statusCode);
   }
 
-  _initializeFromMap(Map data, {int statusCode: 500}) {
+  _initializeFromMap(Map<String, dynamic> data, {int statusCode: 500}) {
     this.statusCode = statusCode;
     details = data["details"];
     informationLink = data["information_link"];

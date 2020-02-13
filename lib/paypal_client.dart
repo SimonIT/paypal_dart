@@ -3,13 +3,17 @@ library paypal_rest_api.paypal_client;
 
 import "dart:async";
 import "dart:convert";
+
 import "package:http/src/base_client.dart";
 import "package:http/src/base_request.dart";
-import "package:http/src/streamed_response.dart";
 import "package:http/src/request.dart";
 import "package:http/src/response.dart";
+import "package:http/src/streamed_response.dart";
+
 import "src/access_credentials.dart";
 import "src/paypal_exception.dart";
+
+const BASE64 = const Base64Codec();
 
 /// Authorizes requests to the PayPal API, and automatically refreshes its token when necessary.
 class PayPalClient extends BaseClient {
@@ -20,10 +24,14 @@ class PayPalClient extends BaseClient {
   final RegExp _leadingSlashes = new RegExp(r"^/+");
   bool debug;
 
-  PayPalClient(this._inner, this.clientId, this.clientSecret,
-      {String this.apiVersion: "v1",
-      String this.paypalEndpoint: "https://api.paypal.com",
-      bool this.debug: false}) {
+  PayPalClient(
+    this._inner,
+    this.clientId,
+    this.clientSecret, {
+    String this.apiVersion: "v1",
+    String this.paypalEndpoint: "https://api.paypal.com",
+    bool this.debug: false,
+  }) {
     this.paypalEndpoint = paypalEndpoint.replaceAll(new RegExp(r"/+$"), "");
   }
 
@@ -32,8 +40,7 @@ class PayPalClient extends BaseClient {
     _lastTokenTime = new DateTime.now();
   }
 
-  String _makeUrl(String url) =>
-      "$paypalEndpoint/$apiVersion/${url.replaceAll(_leadingSlashes, "")}";
+  String _makeUrl(String url) => "$paypalEndpoint/$apiVersion/${url.replaceAll(_leadingSlashes, "")}";
 
   /*
    * The Authorization field is constructed as follows:[7][8][9]
@@ -55,14 +62,16 @@ class PayPalClient extends BaseClient {
   /// Asynchronously obtains an access token from the PayPal API.
   Future<PayPalAccessCredentials> obtainAccessCredentials() async {
     var authString = BASE64.encode("$clientId:$clientSecret".codeUnits);
-    var response = await _inner.post("$paypalEndpoint/$apiVersion/oauth2/token",
-        body: "grant_type=client_credentials",
-        headers: {
-          "Accept": "application/json",
-          "Accept-Language": "en_US",
-          "Authorization": "Basic $authString",
-          "Content-Type": "application/x-www-form-urlencoded"
-        });
+    var response = await _inner.post(
+      "$paypalEndpoint/$apiVersion/oauth2/token",
+      body: "grant_type=client_credentials",
+      headers: {
+        "Accept": "application/json",
+        "Accept-Language": "en_US",
+        "Authorization": "Basic $authString",
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+    );
     return new PayPalAccessCredentials.fromJson(response.body);
   }
 
@@ -103,8 +112,10 @@ class PayPalClient extends BaseClient {
         print("Error response text: ${out.body}");
       }
 
-      throw new PayPalException.fromJson(out.body,
-          statusCode: response.statusCode);
+      throw new PayPalException.fromJson(
+        out.body,
+        statusCode: response.statusCode,
+      );
     } else
       return response;
   }
@@ -120,24 +131,18 @@ class PayPalClient extends BaseClient {
   }
 
   @override
-  Future<Response> post(url,
-      {Map<String, String> headers, body, Encoding encoding}) {
-    return super
-        .post(_makeUrl(url), headers: headers, body: body, encoding: encoding);
+  Future<Response> post(url, {Map<String, String> headers, body, Encoding encoding}) {
+    return super.post(_makeUrl(url), headers: headers, body: body, encoding: encoding);
   }
 
   @override
-  Future<Response> put(url,
-      {Map<String, String> headers, body, Encoding encoding}) {
-    return super
-        .put(_makeUrl(url), headers: headers, body: body, encoding: encoding);
+  Future<Response> put(url, {Map<String, String> headers, body, Encoding encoding}) {
+    return super.put(_makeUrl(url), headers: headers, body: body, encoding: encoding);
   }
 
   @override
-  Future<Response> patch(url,
-      {Map<String, String> headers, body, Encoding encoding}) {
-    return super
-        .patch(_makeUrl(url), headers: headers, body: body, encoding: encoding);
+  Future<Response> patch(url, {Map<String, String> headers, body, Encoding encoding}) {
+    return super.patch(_makeUrl(url), headers: headers, body: body, encoding: encoding);
   }
 
   @override

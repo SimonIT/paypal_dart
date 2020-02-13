@@ -7,23 +7,30 @@ import "dart:convert";
 class PayPalAccessCredentials {
   String accessToken, appId, _scope, tokenType;
   num expiresIn;
+
   List<String> get scopes => _scope.split(" ").map((str) => str.trim()).toList(growable: false);
 
-  PayPalAccessCredentials({String this.appId, String this.accessToken, String this.tokenType, num this.expiresIn, List<String> scopes: const []}) {
+  PayPalAccessCredentials({
+    String this.appId,
+    String this.accessToken,
+    String this.tokenType,
+    num this.expiresIn,
+    List<String> scopes: const [],
+  }) {
     _scope = scopes.join(" ");
   }
 
   /// Initializes based on a JSON string.
   PayPalAccessCredentials.fromJson(String json) {
-    _initializeFromMap(JSON.decode(json));
+    _initializeFromMap(jsonDecode(json));
   }
 
   /// Initializes with data in a Map.
-  PayPalAccessCredentials.fromMap(Map data) {
+  PayPalAccessCredentials.fromMap(Map<String, dynamic> data) {
     _initializeFromMap(data);
   }
 
-  _initializeFromMap(Map data) {
+  _initializeFromMap(Map<String, dynamic> data) {
     accessToken = data["access_token"];
     appId = data["app_id"];
     tokenType = data["tokenType"];
@@ -31,4 +38,3 @@ class PayPalAccessCredentials {
     expiresIn = data["expires_in"];
   }
 }
-
