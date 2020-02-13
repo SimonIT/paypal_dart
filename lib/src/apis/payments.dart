@@ -50,7 +50,7 @@ class Payment {
     experienceProfileId = data["experience_profile_id"];
     noteToPayer = data["note_to_payer"];
     failureReason = data["failure_reason"];
-    createTime = DateTime.tryParse(data["create_time"]) ?? new DateTime.now();
+    createTime = data["create_time"] != null ? DateTime.parse(data["create_time"]) : new DateTime.now();
     if (updateTime != null) {
       updateTime = DateTime.parse(data["update_time"]);
     }
