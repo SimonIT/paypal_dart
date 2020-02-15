@@ -5,6 +5,7 @@ library paypal_rest_api.apis.payments;
 import "dart:async";
 import "dart:convert";
 
+import 'package:http/http.dart';
 import "package:http/src/base_client.dart" as http;
 
 /// Includes an intent, payer, and transactions.
@@ -43,7 +44,7 @@ class Payment {
     _initializeFromMap(data);
   }
 
-  _initializeFromMap(Map<String, dynamic> data) {
+  void _initializeFromMap(Map<String, dynamic> data) {
     id = data["id"];
     intent = data["intent"];
     state = data["state"];
@@ -56,13 +57,13 @@ class Payment {
     }
 
     if (data["transactions"] != null) {
-      for (Map transaction in data["transactions"]) {
+      for (Map<String, dynamic> transaction in data["transactions"]) {
         transactions.add(transaction);
       }
     }
 
     if (data["links"] != null) {
-      for (Map link in data["links"]) {
+      for (Map<String, dynamic> link in data["links"]) {
         links.add(link);
       }
     }
@@ -111,7 +112,7 @@ class Payer {
   }
 
   Map<String, dynamic> toJson() {
-    return {
+    return <String, dynamic>{
       "payment_method": paymentMethod,
       "funding_instruments": fundingInstruments,
     };
@@ -120,7 +121,7 @@ class Payer {
 
 class Transaction {
   Map<String, dynamic> toJson() {
-    return {};
+    return <String, dynamic>{};
   }
 }
 
@@ -133,7 +134,7 @@ class PaymentsApi {
 
   /// Creates a [Payment].
   Future<Payment> createPayment(payment) async {
-    var response = await _client.post(
+    Response response = await _client.post(
       "$_endPoint/payment",
       body: jsonEncode(payment is Payment ? payment.toJson() : payment),
       headers: <String, String>{

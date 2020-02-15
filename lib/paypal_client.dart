@@ -4,6 +4,7 @@ library paypal_rest_api.paypal_client;
 import "dart:async";
 import "dart:convert";
 
+import 'package:http/http.dart';
 import "package:http/src/base_client.dart";
 import "package:http/src/base_request.dart";
 import "package:http/src/request.dart";
@@ -35,7 +36,7 @@ class PayPalClient extends BaseClient {
     this.paypalEndpoint = paypalEndpoint.replaceAll(new RegExp(r"/+$"), "");
   }
 
-  Future _fetchToken() async {
+  Future<void> _fetchToken() async {
     credentials = await obtainAccessCredentials();
     _lastTokenTime = new DateTime.now();
   }
@@ -62,7 +63,7 @@ class PayPalClient extends BaseClient {
   /// Asynchronously obtains an access token from the PayPal API.
   Future<PayPalAccessCredentials> obtainAccessCredentials() async {
     var authString = BASE64.encode("$clientId:$clientSecret".codeUnits);
-    var response = await _inner.post(
+    Response response = await _inner.post(
       "$paypalEndpoint/$apiVersion/oauth2/token",
       body: "grant_type=client_credentials",
       headers: {
@@ -78,8 +79,8 @@ class PayPalClient extends BaseClient {
   @override
   Future<StreamedResponse> send(BaseRequest request) async {
     if (_lastTokenTime != null && credentials != null) {
-      var now = new DateTime.now();
-      var difference = now.difference(_lastTokenTime);
+      DateTime now = new DateTime.now();
+      Duration difference = now.difference(_lastTokenTime);
       if (difference.inSeconds >= credentials.expiresIn) await _fetchToken();
     } else
       await _fetchToken();
@@ -87,7 +88,7 @@ class PayPalClient extends BaseClient {
     if (credentials != null) {
       request.headers["authorization"] = "Bearer ${credentials.accessToken}";
     } else if (credentials == null) {
-      var provisional = await obtainAccessCredentials();
+      PayPalAccessCredentials provisional = await obtainAccessCredentials();
       request.headers["authorization"] = "Bearer ${provisional.accessToken}";
       request.headers["dart_paypal_client"] = "provisional";
       credentials = provisional;
@@ -103,10 +104,10 @@ class PayPalClient extends BaseClient {
       }
     }
 
-    var response = await _inner.send(request);
+    StreamedResponse response = await _inner.send(request);
 
     if (response.statusCode != 200 && response.statusCode != 201) {
-      var out = await Response.fromStream(response);
+      Response out = await Response.fromStream(response);
 
       if (debug) {
         print("Error response text: ${out.body}");

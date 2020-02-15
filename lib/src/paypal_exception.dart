@@ -25,7 +25,7 @@ class PayPalException implements Exception {
     _initializeFromMap(data, statusCode: statusCode);
   }
 
-  _initializeFromMap(Map<String, dynamic> data, {int statusCode: 500}) {
+  void _initializeFromMap(Map<String, dynamic> data, {int statusCode: 500}) {
     this.statusCode = statusCode;
     details = data["details"];
     informationLink = data["information_link"];

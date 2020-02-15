@@ -30,7 +30,7 @@ class PayPalAccessCredentials {
     _initializeFromMap(data);
   }
 
-  _initializeFromMap(Map<String, dynamic> data) {
+  void _initializeFromMap(Map<String, dynamic> data) {
     accessToken = data["access_token"];
     appId = data["app_id"];
     tokenType = data["tokenType"];
