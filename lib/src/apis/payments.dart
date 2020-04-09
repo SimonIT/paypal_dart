@@ -1,5 +1,3 @@
-// Todo: Funding Instruments, Payer, basically all objects...
-/// Contains code to process payments via PayPal.
 library paypal_rest_api.apis.payments;
 
 import "dart:async";
@@ -14,11 +12,13 @@ part 'payments.g.dart';
 /// Includes an intent, payer, and transactions.
 @JsonSerializable(fieldRename: FieldRename.snake)
 class Payment {
-  String intent, experienceProfileId, noteToPayer;
+  String id, state, intent, experienceProfileId, noteToPayer, failureReason;
   List<Transaction> transactions = [];
   Payer payer;
   ApplicationContext applicationContext;
   RedirectUrls redirectUrls;
+  DateTime createTime, updateTime;
+  List<LinkDescription> links;
 
   Payment({
     this.intent,

@@ -19,20 +19,41 @@ Payment _$PaymentFromJson(Map<String, dynamic> json) {
             e == null ? null : Transaction.fromJson(e as Map<String, dynamic>))
         ?.toList(),
     payer: json['payer'],
-  )..applicationContext = json['application_context'] == null
-      ? null
-      : ApplicationContext.fromJson(
-          json['application_context'] as Map<String, dynamic>);
+  )
+    ..id = json['id'] as String
+    ..state = json['state'] as String
+    ..failureReason = json['failure_reason'] as String
+    ..applicationContext = json['application_context'] == null
+        ? null
+        : ApplicationContext.fromJson(
+            json['application_context'] as Map<String, dynamic>)
+    ..createTime = json['create_time'] == null
+        ? null
+        : DateTime.parse(json['create_time'] as String)
+    ..updateTime = json['update_time'] == null
+        ? null
+        : DateTime.parse(json['update_time'] as String)
+    ..links = (json['links'] as List)
+        ?.map((e) => e == null
+            ? null
+            : LinkDescription.fromJson(e as Map<String, dynamic>))
+        ?.toList();
 }
 
 Map<String, dynamic> _$PaymentToJson(Payment instance) => <String, dynamic>{
+      'id': instance.id,
+      'state': instance.state,
       'intent': instance.intent,
       'experience_profile_id': instance.experienceProfileId,
       'note_to_payer': instance.noteToPayer,
+      'failure_reason': instance.failureReason,
       'transactions': instance.transactions,
       'payer': instance.payer,
       'application_context': instance.applicationContext,
       'redirect_urls': instance.redirectUrls,
+      'create_time': instance.createTime?.toIso8601String(),
+      'update_time': instance.updateTime?.toIso8601String(),
+      'links': instance.links,
     };
 
 RedirectUrls _$RedirectUrlsFromJson(Map<String, dynamic> json) {
